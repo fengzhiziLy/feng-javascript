@@ -1,5 +1,119 @@
 **在不同的执行上下文中this的确定是不同的**
 
+#### why this
+
+```js
+function identify() {
+  return this.name.toUpperCase()
+}
+function speak () {
+  var greeting = "Hello,I'm " + identify.call(this)
+  console.log(greeting)
+}
+var me = {
+  name: 'feng'
+}
+var you = {
+  name: 'zhao'
+}
+identify.call(me)   // FENG
+identify.call(you)  // ZHAO 
+speak.call(me)      // Hello,I'm FENG
+speak.call(you)     // Hello,I'm ZHAO
+```
+
+如果不使用this，那就需要给identify()和speak()显式传入一个上下文对象
+
+```js
+function identify(context) {
+  return context.name.toUpperCase()
+}
+function speak (context) {
+  var greeting = "Hello,I'm " + identify(context)
+  console.log(greeting)
+}
+```
+
+误解：
+
+1. 指向自身
+
+> 下面的例子展示了this不是像所想的那样指向函数本身
+
+```js
+function foo (num) {
+  console.log("foo: " + num)
+  // 记录foo被调用的次数
+  this.count++;
+}
+foo.count = 0
+var i
+for (i = 0; i < 10; i++) {
+  if (i > 5) {
+    foo(i)
+  }
+}
+// foo被调用的次数？
+console.log(foo.count)  //  0
+```
+
+> console.log产生了4条输出，证明了foo()确实被调用了4次.
+> 在执行foo.count = 0时，向函数对象foo添加了一个属性count，但是函数内部的this.count中的this并不是指向那个函数本身。
+> 这段代码在无意中创建了一个全局变量count，值为NaN
+
+> 使用词法作用域解决上面的问题
+
+```js
+function foo (num) {
+  console.log("foo: " + num)
+  // 记录foo被调用的次数
+  data.count++;
+}
+var data = {
+  count: 0
+}
+var i
+for (i = 0; i < 10; i++) {
+  if (i > 5) {
+    foo(i)
+  }
+}
+console.log(data.count)  // 4
+```
+
+2. 误解2：this指向函数的作用域
+
+**this在任何情况下都不指向函数的词法作用域**
+
+**this实际上是在函数被调用时发生的绑定，它指向什么完全取决于函数在哪里被调用**
+
+------
+
+#### 理解调用位置
+
+```js
+function baz () {
+  // 当前的调用栈是baz
+  // 因此，当前的调用位置是全局作用域
+  console.log("baz")
+  bar()   // <---- bar的调用位置
+}
+function bar () {
+  // 当前的调用栈是： baz --> bar
+  // 因此，当前的调用位置在baz中
+  console.log("bar")
+  foo()  // <--- foo的调用位置
+}
+function foo () {
+  // 当前的调用栈是： baz ---> bar ---> foo
+  // 因此，当前的调用位置在bar中
+  console.log("foo")
+}
+baz()  // <--- baz的调用位置
+```
+
+-----------------------
+
 #### this是执行上下文中的一个属性
 
 ```
@@ -60,8 +174,28 @@ foo.test() // 在上面this = foo注释的情况下 false 10 10
 function foo () {
   console.log(this)
 }
-foo()
-console.log(foo === foo.prototype.constructor)
+foo()   // global
+console.log(foo === foo.prototype.constructor)  // true
 
-foo.prototype.constructor()
+foo.prototype.constructor() // {constructor: ƒ}--->foo.prototype
 ```
+
+有可能作为一些对象定义的方法来调用函数，但是this将不会设置为这个函数、
+
+```js
+var foo = {
+  bar: function () {
+    console.log(this)
+    console.log(this === foo)
+  }
+}
+foo.bar()  // {bar: ƒ} true
+var exampleFunc = foo.bar
+console.log(exampleFunc === foo.bar)    // true
+exampleFunc()   // window false
+```
+
+那么，调用函数的方式如何影响this？需要分析内部类型之一------引用类型(Reference Type)
+
+
+#### 引用类型(Reference Type)
