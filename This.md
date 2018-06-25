@@ -199,3 +199,337 @@ exampleFunc()   // window false
 
 
 #### 引用类型(Reference Type)
+
+> 这里的 Reference 是一个 Specification Type，也就是 “只存在于规范里的抽象类型”。它们是为了更好地描述语言的底层行为逻辑才存在的，但并不存在于实际的 js 代码中。----尤雨溪
+
+Reference类型就是用来解释诸如delete、typeof以及赋值等操作行为的。
+
+使用伪代码将引用类型的值表示为拥有三个属性的对象---base value(即拥有属性的那个对象)和base中的referenced name以及 strict reference.
+
+base value就是属性所在的对象或者就是EnvironmentRecord，它的值只可能是undefined, an Object, a Boolean, a String, a Number, or an environment record其中的一种。
+
+referenced name就是属性的名称
+
+例子：
+
+```js
+var foo = 1
+// 对应的reference是：
+var fooReference = {
+  base: EnvironmentRecord,
+  name: 'foo',
+  strict: false
+}
+
+var foo = {
+  bar: function () {
+    return this
+  }
+}
+foo.bar()  // foo
+// bar对应的reference是：
+var BarReference = {
+  base: foo,
+  propertyName: 'bar',
+  strict: false
+}
+```
+
+规范中提供了获取reference组成的方法，比如GetBase和IsPropertyReference.
+  1. GetBase
+  > 返回reference的base value
+  2. IsPropertyReference
+  > 如果base value是一个对象，就返回true
+
+规范中还有一个用于从Reference类型获取对应值的方法：GetValue
+
+```js
+// 简单模拟GetValue的使用
+var foo = 1;
+var fooReference = {
+  base: EnvironmentRecord,
+  name: 'foo',
+  strict: false
+}
+GetValue(fooReference)  // 1
+```
+
+**GetValue返回对象属性真正的值，是具体的值，不再是一个Reference**
+
+规范中的：
+
+```
+1.Let ref be the result of evaluating MemberExpression.
+6.If Type(ref) is Reference, then
+  a.If IsPropertyReference(ref) is true, then
+    i.Let thisValue be GetBase(ref).
+  b.Else, the base of ref is an Environment Record
+    i.Let thisValue be the result of calling the ImplicitThisValue concrete method of GetBase(ref).
+7.Else, Type(ref) is not Reference.
+  a. Let thisValue be undefined.
+  [冴羽](https://juejin.im/post/58eee3eda0bb9f006a7eea12)
+```
+
+描述：
+1.计算MemberExpression的结果赋值给ref
+2.判断ref是不是一个Reference类型
+
+> 2.1 如果ref是Reference，并且IsPropertyReference(ref)是true，那么this的值为GetBase(ref)
+> 2.2 如果ref是Reference,并且base value值为Environment Record，那么this的值为ImplicitThisValue(ref)
+> 2.3 如果ref不是Reference，那么this的值为undefined
+
+##### 具体分析
+
+MemberExpression的类型：
+- PrimaryExpression // 原始表达式
+- FunctionExpression // 函数定义表达式
+- MemberExpression[Expression] // 属性访问表达式
+- MemeberExpression.IdentifierName // 属性访问表达式
+- new MemeberExpression Arguments // 对象创建表达式
+
+例子： 
+
+```js
+function foo () {
+  console.log(this)
+}
+foo() // MemeberExpression: foo
+
+function foo () {
+  return function () {
+    console.log(this)
+  }
+}
+foo()() // MemeberExpression: foo()
+
+var foo = {
+  bar: function() {
+    return this
+  }
+}
+foo.bar() // MemeberExpression: foo.bar
+```
+
+====> MemeberExpression其实就是()左边的部分
+
+判断ref是不是一个Reference类型
+
+```js
+var value = 1
+var foo = {
+  value: 2,
+  bar: function () {
+    return this.value
+  }
+}
+console.log(foo.bar())                // 2
+console.log((foo.bar)())              // 2
+console.log((foo.bar = foo.bar)())    // 1
+console.log((false || foo.bar)())     // 1
+console.log((foo.bar, foo.bar)())     // 1
+```
+
+###### foo.bar()
+
+规范定义：
+
+> Return a value of type Reference whose base value is baseValue and whose referenced name is propertyNameString, and whose strict mode flag is strict
+
+该表达式返回了一个Reference类型
+
+```js
+var Reference = {
+  base: foo,
+  name: 'bar',
+  strict: false
+}
+```
+
+如前所述，ref是一个Reference，对于IsPropertyReference方法，如果base value是一个对象，就返回true
+base value为foo，是一个对象，所以IsPropertyReference(ref)结果为true
+确定this的值:
+
+```
+this = GetBase(ref)
+```
+
+GetBase获得base value的值，就是foo
+
+##### (foo.bar)()
+
+foo.bar被()包住，规范中定义：
+
+> Return the result of evaluating Expression. This may be of type Reference.
+> NOTE This algorithm does not apply GetValue to the result of evaluating Expression.
+
+()并没有对MemeberExpression进行计算，也是引用类型，其实与foo.bar()的结果是一样的
+
+##### (foo.bar = foo.bar)()
+
+有赋值操作，规范：
+
+> Let rval be GetValue(rref)
+
+由于使用了GetValue,所以返回的值不是Reference类型，这样this的值为undefined, 在非严格模式下，this为undefined的时候，会被隐式转换为全局对象。
+
+##### (false || foo.bar)() && (foo.bar, foo.bar)()
+
+规范中定义：
+
+> Let lval be GetValue(lref)
+> Call GetValue(lref)
+
+因为使用了 GetValue，所以返回的不是 Reference 类型，this 为 undefined.
+
+
+----------------------
+----------------------
+
+引用类型的值只有两种情况：
+  1. 当处理一个标识符时
+  2. 或一个属性访问器
+
+只需要知道，在该算法的返回值中，总是一个引用类型的值
+
+标识符是变量名、函数名、函数参数名和全局对象中未识别的属性名
+
+```js
+var foo = 10
+function bar () {}
+```
+
+在操作的中间结果中，引用类型对应的值如下：
+
+```js
+var fooReference = {
+  base: global,
+  propertyName: 'foo'
+}
+var barReference = {
+  base: global,
+  propertyName: 'bar'
+}
+```
+
+为了从引用类型中得到一个对象真正的值，伪代码中的GetValue方法可以做如下描述：
+
+```js
+function GetValue(value) {
+  if (Type(value) !== Reference) {
+    return value
+  }
+  var base = GetBase(value)
+  if (base === null) {
+    throw new ReferenceError
+  }
+  return base.[[Get]](GetPropertyName(value))
+}
+```
+
+内部的\[[Get]]方法返回对象属性真正的值，包括对原型链中继承的属性分析。
+
+```js
+GetValue(fooReference)   // 10
+GetValue(barReference)   // function object "bar"
+```
+
+属性访问器：(.)语法和([])语法
+
+```js
+foo.bar()
+foo['bar']()
+```
+
+在中间计算的返回值中，有引用类型的值
+
+```js
+var fooBarReference = {
+  base: foo,
+  propertyName: 'bar'
+}
+GetValue(fooBarReference)   // function object "bar"
+```
+
+一个函数上下文中确定的this值的通用规则如下：
+
+在一个函数上下文中，this由调用者提供，由调用函数的方式来决定。如果调用括号()的左边是引用类型的值，this将设为引用类型值的base对象(base object)，在其他情况下(与引用类型不同的任何其他属性)，这个值为null，不过实际不存在this的值为null的情况，赋值为undefined。
+
+```js
+function foo () {
+  return this
+}
+foo()  // global/window
+```
+
+在调用括号的左边是一个引用类型值(因为foo是一个标识符)
+
+```js
+var fooReference = {
+  base: global,
+  propertyName: 'foo'
+}
+<!-- 相应的，this设置为引用类型的base对象，即全局对象 -->
+```
+
+使用属性访问器：
+
+```js
+var foo = {
+  bar: function () {
+    return this
+  }
+}
+foo.bar()    // foo
+
+var fooBarReference = {
+  base: foo,
+  propertyName: 'bar'
+}
+
+// 但是，用另外一种形式激活相同的函数，得到其它的this值
+var test = foo.bar
+test()      // global
+// test 作为标识符，生成了引用类型的其他值
+var testReference = {
+  base: global,
+  propertyName: 'test'
+}
+```
+
+#### 函数调用和非引用类型
+
+```js
+(function() {
+  console.log(this)   //[object Window]
+})()
+
+var foo = {
+  bar: function () {
+    console.log(this)
+  }
+}
+foo.bar()       // Reference, => foo
+(foo.bar)()     // Reference, => foo
+(foo.bar = foo.bar)() // window
+(false || foo.bar)()  // window
+(foo.bar, foo.bar)()  // window
+```
+
+分析：
+1. 第一个是明显的引用类型
+2. 第二个例子，组运算符并不适用，从引用类型中获得一个对象真正的值的方法GetValue，在组运算的返回中，得到的仍是一个引用类型
+3. 三四五的例子中，调用了GetValue方法，不是一个Reference类型了。
+
+#### 作为构造器调用函数的this
+
+```js
+function A() {
+  console.log(this)   // A {}
+  this.x = 10
+}
+var a = new A()
+console.log(a.x)    // 10
+```
+
+this绑定到新创建的对象上
+
