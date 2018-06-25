@@ -136,3 +136,80 @@ foo(10, 20)
 >> 由名称和对应值(函数对象(function-object))组成一个变量对象的属性被创建。如果变量对象已经存在相同名称的属性，则完全替换这个属性。
 
 > 所有变量声明(var, VariableDeclaration)
+>> 由名称和对应值(undefined)组成一个变量对象的属性被创建；如果变量名称跟已经声明的形式参数或函数相同，则变量声明不会干扰已经存在的这类属性
+
+```js
+function test (a, b) {
+  var c = 10
+  function d () {}
+  var e = function _e() {}
+  (function x () {})
+}
+test(10)
+```
+
+当进入带有参数10的test函数上下文的时候，AO的表现如下：
+
+```
+AO(test) = {
+  a: 10,
+  b: undefined,
+  c: undefined,
+  d: <reference to FunctionDeclaration "d">,
+  e: undefined
+}
+```
+
+*AO并不包含函数"x"，这是因为x是一个函数表达式，函数表达式不会影响AO*
+
+##### 代码执行
+
+这个周期中，AO/VO已经拥有了属性(并不是所有的属性都有值)
+前面的例子在代码执行被修改成：
+
+```
+AO['c'] = 10,
+AO['e'] = <reference to FunctionExpression "_e">
+```
+
+另一个例子：
+
+```js
+alert(x) // function x() {}
+var x = 10
+alert(x)
+x = 20
+function x () {}
+alert(x)
+```
+
+在进入上下文时，VO的结构如下：
+
+```
+VO = {} 
+VO['x'] = <reference to FunctionDeclaration "x">
+// 找到var x = 10
+// 如果function "x"没有已经声明的话
+// 此时"x"的值应该是undefined
+// 但是这个例子里变量声明没有影响同名的function的值
+VO['x'] = <the value is not disturbed, still function>
+```
+
+在代码执行阶段，VO做如下修改：
+
+```
+VO['x'] = 10;
+VO['x'] = 20;
+```
+
+在下面的例子中，变量是在进入上下文阶段放入VO中的，else部分不会执行，但变量仍然存在于VO中
+
+```js
+if (true) {
+  var a = 1
+} else {
+  var b = 2
+}
+alert(a)   // 1
+alert(b)   // undefined,不是b没有声明，而是b的值为undefined
+```
