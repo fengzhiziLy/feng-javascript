@@ -17,3 +17,5 @@
 [VariableObject](./VariableObject.md)
 
 [This](./This.md)
+
+[Scope](./Scope.md)
