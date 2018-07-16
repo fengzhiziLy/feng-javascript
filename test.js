@@ -43,3 +43,127 @@ for(var i = 1; i <= 5; i++) {
     }, i * 1000)
   })(i)
 }
+
+function foo () {
+  // slice() 方法可从已有的数组中返回选定的元素。
+  // var arr = Array.prototype.slice.call(arguments);
+  var arr = Array.from(arguments);
+  arr.push("bam");
+  console.log(arr)
+}
+foo("bar", "baz");
+
+var a = new Array(3);
+var b = [ undefined, undefined, undefined ];
+var c = [];
+c.length = 3;
+a.join("-");
+b.join("-");
+a.map(function(v, i) { return i; })
+b.map(function(v, i) { return i; })
+
+function fakeJoin(arr, connector) {
+  var str = "";
+  for(var i = 0; i < arr.length; i++) {
+    if (i > 0) {
+      str += connector;
+    }
+    if (arr[i] !== undefined) {
+      str += arr[i]
+    }
+  }
+  return str;
+}
+var a = new Array(3);
+fakeJoin(a, "-");
+
+var a = {
+  b: 42,
+  c: "42",
+  d: [1, 2, 3]
+};
+JSON.stringify(a, null, 3);
+
+
+var a  = 42;
+var b = null;
+var c = "foo";
+if(a && (b ||c)) {
+  console.log("feng");
+}
+
+function foo ( a = 42, b = a + 1) {
+  console.log(
+    arguments.length, a, b,
+    arguments[0], arguments[1]
+  );
+}
+
+function now () {
+  return 21;
+}
+function later () {
+  answer = answer * 2;
+  console.log("meaning of life:", answer);
+}
+var answer = now();
+setTimeout(later, 1000);
+
+var a = {
+  index: 1
+};
+console.log(a);
+a.index++;
+
+
+var p = Promise.resolve(21);
+var p2 = p.then(function (v) {
+  console.log(v);
+  return v * 2;
+});
+p2.then(function (v) {
+  console.log(v);
+});
+
+var p = Promise.resolve(21);
+p.then(function (v) {
+  console.log(v);
+  return v * 2;
+})
+.then(function (v) {
+  console.log(v);
+});
+
+var p = Promise.resolve(21);
+p.then(function (v) {
+  console.log(v);
+  return new Promise(function (resolve, reject) {
+    resolve(v * 2);
+  })
+})
+.then(function (v) {
+  console.log(v);
+});
+
+
+function delay(time) {
+  return new Promise(function (resolve, reject) {
+    setTimeout(resolve, time);
+  })
+};
+delay(2000)
+.then(function STEP2() {
+  console.log("step 2 after 2000ms");
+  return delay(2000)
+})
+.then(function STEP3() {
+  console.log("step 3 after 2000ms");
+  return delay(2000)
+})
+.then(function STEP4() {
+  console.log("step 4 after 2000ms");
+  return delay(2000)
+})
+
+
+
