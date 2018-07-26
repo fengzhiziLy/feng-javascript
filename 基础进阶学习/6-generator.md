@@ -301,3 +301,251 @@ try {
 // TypeError: x.toUpperCase is not a function
 ```
 上面代码中，第二个`next`方法向函数体内传入一个参数42，数值是没有`toUpperCase`方法的，所以会抛出一个`TypeError`错误，被函数体外的catch捕获
+
+一旦Generator执行过程中抛出错误，且没有被内部捕获，就不会再执行下去了。
+如果此后还调用'next'方法，将返回一个`value`属性等于`undefined`、`done`属性等于`true`的对象，
+即JavaScript引擎认为这个Generator已经结束了。
+
+```js
+function *g() {
+  yield 1;
+  console.log('throwing an exception');
+  throw new Error('generator broke');
+  yield 2;
+  yield 3;
+}
+function log(generator) {
+  var v;
+  console.log('starting generator');
+  try {
+    v = generator.next();
+    console.log('第一次运行next方法', v);
+  } catch (err) {
+    console.log('捕获错误', v);
+  }
+  try {
+    v = generator.next();
+    console.log('第二次运行next方法', v);
+  } catch (err) {
+    console.log('捕获错误', v);
+  }
+  try {
+    v = generator.next();
+    console.log('第三次运行next方法', v);
+  } catch (err) {
+    console.log('捕获错误', v);
+  }
+  console.log('caller done');
+}
+log(g());
+// starting generator
+// 第一次运行next方法 { value: 1, done: false }
+// throwing an exception
+// 捕获错误 { value: 1, done: false }
+// 第三次运行next方法 { value: undefined, done: true }
+// caller done
+```
+
+#### Generator.prototype.return()
+
+Generator函数返回的遍历器对象，有一个`return`方法，可以返回给定的值，并且终结遍历Generator函数
+
+```js
+function *gen() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+var g = gen();
+g.next();           // {value: 1, done: false}
+g.return('foo');    // {value: "foo", done: true}
+g.next();           // {value: undefined, done: true}
+```
+
+如果`return`方法调用时，不提供参数，则返回值的`value`属性为`undefined`
+
+如果Generator函数内部有`try...finally`方法，那么`return`方法会推迟到`finally`执行完之后再执行。
+
+```js
+function *numbers () {
+  yield 1;
+  try {
+    yield 2;
+    yield 3;
+  } finally {
+    yield 4;
+    yield 5;
+  }
+  yield 6;
+}
+var g = numbers();
+g.next() // { value: 1, done: false }
+g.next() // { value: 2, done: false }
+g.return(7) // { value: 4, done: false }
+g.next() // { value: 5, done: false }
+g.next() // { value: 7, done: true }
+```
+
+上面代码中，调用`return`方法后，就开始执行`finally`代码块，然后等到`finally`代码块执行完，再执行`return`方法。
+
+#### next() throw() return()的共同点
+
+`next()`、`throw()`、`return()`本质上是同一件事，作用都是让Generator函数恢复执行，并且使用不同的语句替换`yield`表达式。
+
+`next()`是将`yield`表达式替换成一个值。
+`throw()`是将`yield`表达式替换成一个`throw`语句。
+`return()`是将`yield`表达式替换成一个`return`语句。
+
+```js
+const g = function *(x, y) {
+  let result = yield x + y;
+  return result;
+}
+const gen = g(1, 2);
+gen.next();     // { value: 3, done: false }
+gen.next(1);    // { value: 1, done: true }
+// 相当于将 let result = yield x + y
+// 替换成 let result = 1;
+gen.throw(new Error('出错了')); // Uncaught Error: 出错了
+// 相当于将 let result = yield x + y
+// 替换成 let result = throw(new Error('出错了'));
+gen.return(2); // Object {value: 2, done: true}
+// 相当于将 let result = yield x + y
+// 替换成 let result = return 2;
+```
+
+
+#### yield* 表达式
+
+如果在Generator函数内部，调用另一个Generator函数，默认情况下是没有效果的
+
+```js
+function *foo() {
+  yield 'a';
+  yield 'b';
+}
+function *bar() {
+  yield 'x';
+  foo();
+  yield 'y';
+}
+for (let v of bar()) {
+  console.log(v)
+}
+// x
+// y
+```
+
+需要使用`yield*`表达式，用来在一个Generator函数里面执行另一个Generator函数
+
+```js
+function *foo() {
+  yield 'a';
+  yield 'b';
+}
+function *bar() {
+  yield 'x';
+  yield *foo();
+  yield 'y';
+}
+// 等同于
+// function *bar() {
+//   yield 'x';
+//   yield 'a';
+//   yield 'b';
+//   yield 'y';
+// }
+// 等同于
+// function* bar() {
+//   yield 'x';
+//   for (let v of foo()) {
+//     yield v;
+//   }
+//   yield 'y';
+// }
+for (let v of bar()) {
+  console.log(v)
+}
+// x
+// a
+// b
+// y
+```
+
+```js
+function *inner() {
+  yield 'hello!';
+}
+function *outer1() {
+  yield 'open';
+  yield inner();
+  yield 'close';
+}
+var gen = outer1()
+gen.next().value      // open
+gen.next().value      // inner {<suspended>}
+gen.next().value      // close
+
+function *outer2() {
+  yield 'open';
+  yield *inner();
+  yield 'close';
+}
+var gen = outer2()
+gen.next().value      //  open
+gen.next().value      // hello!
+gen.next().value      // close
+```
+
+在这个例子中，`outer2`使用了`yield*`，`outer1`没使用。
+结果就是，`outer1`返回了一个遍历器对象，`outer2`返回了该遍历器对象的内部值
+
+```js
+let delegatedIterator = (function *() {
+  yield 'Hello';
+  yield 'Bey!';
+}())
+let delegatingIterator = (function *() {
+  yield 'Greeting';
+  yield *delegatedIterator;
+  yield 'Ok, bye.';
+}())
+for (let value of delegatingIterator) {
+  console.log(value)
+}
+// Greeting
+// Hello
+// Bey!
+// Ok, bye.
+```
+
+`yield*`后面的Generator函数(**没有return语句时**)，等同于在Generator函数内部，部署了一个`for...of`循环
+
+```js
+function *concat(iter1, iter2) {
+  yield *iter1;
+  yield *iter2;
+}
+// 等同于
+function *concat(iter1, iter2) {
+  for (var value of iter1) {
+    yield value;
+  }
+  for (var value of iter2) {
+    yield value;
+  }
+}
+```
+
+如果`yeild*`后面跟一个数组，由于数组原生支持遍历器，因此会遍历数组成员
+
+```js
+function *gen() {
+  yield *["a", "b", "c"];
+}
+gen().next()
+// { value: 'a', done: false }
+```
+
+实际上，任何数据结构只要有Iterator接口，就可以被`yield*`遍历。
+

@@ -104,15 +104,131 @@
 // g.throw()
 // g.next()
 
-function *foo() {
-  var x = yield 3;
-  var y = x.toUpperCase();
-  yield y;
+// function *foo() {
+//   var x = yield 3;
+//   var y = x.toUpperCase();
+//   yield y;
+// }
+// var it = foo();
+// it.next();
+// try {
+//   it.next(42);
+// } catch (err) {
+//   console.log(err);
+// }
+
+// function *g() {
+//   yield 1;
+//   console.log('throwing an exception');
+//   throw new Error('generator broke');
+//   yield 2;
+//   yield 3;
+// }
+// function log(generator) {
+//   var v;
+//   console.log('starting generator');
+//   try {
+//     v = generator.next();
+//     console.log('第一次运行next方法', v);
+//   } catch (err) {
+//     console.log('捕获错误', v);
+//   }
+//   try {
+//     v = generator.next();
+//     console.log('第二次运行next方法', v);
+//   } catch (err) {
+//     console.log('捕获错误', v);
+//   }
+//   try {
+//     v = generator.next();
+//     console.log('第三次运行next方法', v);
+//   } catch (err) {
+//     console.log('捕获错误', v);
+//   }
+//   console.log('caller done');
+// }
+// log(g());
+
+// function *gen() {
+//   yield 1;
+//   yield 2;
+//   yield 3;
+// }
+// var g = gen();
+// g.next();
+// g.return('foo');
+// g.next();
+
+// const g = function *(x, y) {
+//   let result = yield x + y;
+//   return result;
+// }
+// const gen = g(1, 2);
+// console.log(gen.next());
+// console.log(gen.next(1));
+
+// function *foo() {
+//   yield 'a';
+//   yield 'b';
+// }
+// function *bar() {
+//   yield 'x';
+//   foo();
+//   yield 'y';
+// }
+// for (let v of bar()) {
+//   console.log(v)
+// }
+
+// function *foo() {
+//   yield 'a';
+//   yield 'b';
+// }
+// function *bar() {
+//   yield 'x';
+//   yield *foo();
+//   yield 'y';
+// }
+// for (let v of bar()) {
+//   console.log(v)
+// }
+
+// function *inner() {
+//   yield 'hello!';
+// }
+// function *outer1() {
+//   yield 'open';
+//   yield inner();
+//   yield 'close';
+// }
+// var gen = outer1()
+// console.log(gen.next().value)
+// console.log(gen.next().value)
+// console.log(gen.next().value)
+// function *outer2() {
+//   yield 'open';
+//   yield *inner();
+//   yield 'close';
+// }
+// var gen = outer2()
+// console.log(gen.next().value)
+// console.log(gen.next().value)
+// console.log(gen.next().value)
+
+// let delegatedIterator = (function *() {
+//   yield 'Hello';
+//   yield 'Bey!';
+// }())
+// let delegatingIterator = (function *() {
+//   yield 'Greeting';
+//   yield *delegatedIterator;
+//   yield 'Ok, bye.';
+// }())
+// for (let value of delegatingIterator) {
+//   console.log(value)
+// }
+
+function *gen() {
+  yield *["a", "b", "c"];
 }
-var it = foo();
-it.next();
-try {
-  it.next(42);
-} catch (err) {
-  console.log(err);
-}
+console.log(gen().next())
