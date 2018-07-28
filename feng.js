@@ -329,8 +329,199 @@
 // console.log(add(1));
 // console.log(add(1));
 
-function add(first, second = first) {
-  return first + second;
-}
-console.log(add(1, 2));
-console.log(add(1));
+// function add(first, second = first) {
+//   return first + second;
+// }
+// console.log(add(1, 2));
+// console.log(add(1));
+
+
+// function pick(object, ...keys) {
+//   let result = Object.create(null);
+//   // 从第二个参数开始
+//   for(let i = 0, len = keys.length; i < len; i++) {
+//     result[keys[i]] = object[keys[i]];
+//   }
+//   return result;
+// }
+// let book = {
+//   title: 'ECMAScript 6',
+//   author: 'feng',
+//   year: 2018
+// }
+// let bookData = pick(book, "author", "year");
+// console.log(bookData.author);
+// console.log(bookData.year);
+
+
+// var add = new Function("first", "second", "return first + second");
+// console.log(add(1, 2));
+
+// var add = new Function("first", "second = first", "return first + second");
+// console.log(add(1, 3));
+// console.log(add(2));
+
+// var pickFirst = new Function("...args", "return args[0]");
+// console.log(pickFirst(1, 2));
+
+// let value1 = 25,
+//     value2 = 50;
+// console.log(Math.max(value1, value2));
+
+// let values = [25, 50, 75, 100];
+// console.log(Math.max.apply(Math, values));
+
+// let values = [25, 50, 75, 100];
+// console.log(Math.max(...values));
+
+// function doSomething () {
+//   // ...
+// }
+// var doAnotherThing = function() {
+//   // ...
+// }
+// console.log(doSomething.name);
+// console.log(doAnotherThing.name);
+
+
+
+// var doSomething = function doSomethingElse() {
+//   // ...
+// };
+// var person = {
+//   get firstName() {
+//     return "feng"
+//   },
+//   sayName: function () {
+//     console.log(this.name);
+//   }
+// }
+// console.log(doSomething.name);
+// console.log(person.sayName.name);
+// var descriptor = Object.getOwnPropertyDescriptor(person, "firstName");
+// console.log(descriptor.get.name);
+
+
+
+// var doSomething = function() {
+//   // ...
+// }
+// console.log(doSomething.bind().name);
+// console.log((new Function()).name);
+
+
+// function Person(name) {
+//   this.name = name;
+// }
+// var person = new Person("feng");
+// var notPerson = Person("feng");
+// console.log(person);    // Person { name: 'feng' }
+// console.log(notPerson); //undefined
+
+
+// function Person (name) {
+//   if (this instanceof Person) {
+//     this.name = name;
+//   } else {
+//     throw new Error('必须通过new关键字调用');
+//   }
+// }
+// var person = new Person("feng");
+// var notPerson = Person("feng");
+// console.log(person);
+// console.log(notPerson);
+
+// function Person (name) {
+//   if (this instanceof Person) {
+//     this.name = name;
+//   } else {
+//     throw new Error('必须通过new关键字调用');
+//   }
+// }
+// var person = new Person("feng");
+// var notPerson = Person.call(person, "wang");
+// console.log(person);    // Person { name: 'wang' }
+// console.log(notPerson); // undefined
+
+// function Person (name) {
+//   if (typeof new.target !== 'undefined') {
+//     this.name = name;
+//   } else {
+//     throw new Error('必须通过new关键字调用');
+//   }
+// }
+// var person = new Person("feng");
+// var notPerson = Person.call(person, "feng");
+// console.log(person);    // Person { name: 'wang' }
+// console.log(notPerson);
+
+
+
+// let person = function (name) {
+//   return {
+//     getName: function() {
+//       return name;
+//     }
+//   }
+// }("feng");
+// console.log(person.getName());
+
+// let person = ((name) => {
+//   return {
+//     getName: function() {
+//       return name;
+//     }
+//   }
+// })("wangzi");
+// console.log(person.getName());
+
+
+// function createArrowFunction () {
+//   return () => arguments[0];
+// }
+// var arrowFunction = createArrowFunction(5);
+// console.log(arrowFunction());
+
+// var comparator = (a, b) => a - b;
+// console.log(typeof comparator);
+// console.log(comparator instanceof Function);
+
+
+// var person = {},
+//     lastName = "last name";
+// person["first name"] = "Feng";
+// person[lastName] = "zhizi";
+// console.log(person["first name"]);
+// console.log(person[lastName]);
+
+// let lastName = "last name";
+// let person = {
+//   "first name": "feng",
+//   [lastName]: "zhizi"
+// }
+// console.log(person["first name"]);
+// console.log(person[lastName]);
+
+
+// var suffix = " name";
+// var person = {
+//   ["first" + suffix]: "feng",
+//   ["last" + suffix]: "zhizhi"
+// }
+// console.log(person["first name"]);
+// console.log(person["last name"]);
+
+console.log(+0 == -0);
+console.log(+0 === -0);
+console.log(Object.is(+0, -0));
+
+console.log(NaN == NaN);
+console.log(NaN === NaN);
+console.log(Object.is(NaN, NaN));
+
+console.log(5 == 5);
+console.log(5 == "5");
+console.log(5 === 5);
+console.log(5 === "5");
+console.log(Object.is(5, 5));
+console.log(Object.is(5, "5"));
