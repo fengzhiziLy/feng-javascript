@@ -1,3 +1,15 @@
+
+```js
+function myObject() {}
+Object.defineProperty(myObject, Symbol.hasInstance, {
+  value: function (v) {
+    return false;
+  }
+});
+let obj = new myObject();
+console.log(obj instanceof myObject);
+```
+
 ```js
 let collection = {
   0: 'hello',
