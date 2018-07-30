@@ -511,17 +511,337 @@
 // console.log(person["first name"]);
 // console.log(person["last name"]);
 
-console.log(+0 == -0);
-console.log(+0 === -0);
-console.log(Object.is(+0, -0));
+// console.log(+0 == -0);
+// console.log(+0 === -0);
+// console.log(Object.is(+0, -0));
 
-console.log(NaN == NaN);
-console.log(NaN === NaN);
-console.log(Object.is(NaN, NaN));
+// console.log(NaN == NaN);
+// console.log(NaN === NaN);
+// console.log(Object.is(NaN, NaN));
 
-console.log(5 == 5);
-console.log(5 == "5");
-console.log(5 === 5);
-console.log(5 === "5");
-console.log(Object.is(5, 5));
-console.log(Object.is(5, "5"));
+// console.log(5 == 5);
+// console.log(5 == "5");
+// console.log(5 === 5);
+// console.log(5 === "5");
+// console.log(Object.is(5, 5));
+// console.log(Object.is(5, "5"));
+
+
+// function mixin(receiver, sipplier) {
+//   Object.keys(sipplier).forEach(function(key) {
+//     receiver[key] = sipplier[key];
+//   });
+//   return receiver;
+// }
+// function EventTarget () { /* ... */ }
+// EventTarget.prototype = {
+//   constructor: EventTarget,
+//   emit: function () { console.log('111') },
+//   on: function () { /* ... */ }
+// }
+// var myObject = {};
+// Object.assign(myObject, EventTarget.prototype);
+// myObject.emit("something");
+
+
+// var receiver = {},
+//     supplier = {
+//       get name() {
+//         return "file.js"
+//       }
+//     };
+// Object.assign(receiver, supplier);
+// var descriptor = Object.getOwnPropertyDescriptor(receiver, "name");
+// console.log(descriptor.value);
+// console.log(descriptor.get);
+
+
+// var obj = {
+//   a: 1,
+//   0: 1,
+//   c: 1,
+//   2: 1,
+//   b: 1,
+//   1: 1
+// }
+// obj.d = 1;
+// console.log(Object.getOwnPropertyNames(obj).join(""));
+
+
+
+// let person = {
+//   getGreeting () {
+//     return "hello";
+//   }
+// };
+// let dog = {
+//   getGreeting () {
+//     return "Worf";
+//   }
+// };
+// // 以person为原型
+// let firend = Object.create(person);
+// console.log(firend.getGreeting());
+// console.log(Object.getPrototypeOf(firend) === person);
+// // 将原型设置为dog
+// Object.setPrototypeOf(firend, dog);
+// console.log(firend.getGreeting());
+// console.log(Object.getPrototypeOf(firend) === dog);
+
+
+
+// let person = {
+//   getGreeting () {
+//     return "hello";
+//   }
+// };
+// let dog = {
+//   getGreeting () {
+//     return "Worf";
+//   }
+// };
+// let firend = {
+//   getGreeting () {
+//     return super.getGreeting(this) + ", hi";
+//   }
+// };
+// // 将原型设置为person
+// Object.setPrototypeOf(firend, person);
+// console.log(firend.getGreeting());
+// console.log(Object.getPrototypeOf(firend) === person);
+// // 将原型设置为dog
+// Object.setPrototypeOf(firend, dog);
+// console.log(firend.getGreeting());
+// console.log(Object.getPrototypeOf(firend) === dog);
+
+
+// let person = {
+//   getGreeting () {
+//     return "hello";
+//   }
+// };
+// let friend = {
+//   getGreeting () {
+//     return super.getGreeting(this) + ", hi";
+//   }
+// };
+// Object.setPrototypeOf(friend, person);  
+// let realtive = Object.create(friend);
+// console.log(person.getGreeting());
+// console.log(friend.getGreeting());
+// console.log(realtive.getGreeting());
+
+
+// let node = {
+//   type: "Feng",
+//   name: "foo"
+// };
+// let type = "FENG";
+// let name = 5;
+// ({ type , name } = node);
+// console.log(type);
+// console.log(name);
+
+// let node = {
+//   type: "Feng",
+//   name: "foo"
+// };
+// let { type: localType, name: localName } = node;
+// console.log(localType);
+// console.log(localName);
+
+
+// let node = {
+//   type: "Feng"
+// };
+// let { type: localType, name: localName = "bar" } = node;
+// console.log(localType);
+// console.log(localName);
+
+// let node = {
+//   type: "feng",
+//   name: "foo",
+//   loc: {
+//     start: {
+//       line: 1,
+//       column: 1
+//     },
+//     end: {
+//       line: 1,
+//       column: 4
+//     }
+//   }
+// };
+// let { loc: { start: localStart } } = node;
+// console.log(localStart.line);
+// console.log(localStart.column);
+
+// let colors = ['red', 'green', 'blue'];
+// let [ firstColor, secondColor ] = colors;
+// console.log(firstColor);
+// console.log(secondColor);
+
+
+// let colors = ['red', 'green', 'blue'];
+// let [ , , thirdColor ] = colors;
+// console.log(thirdColor);
+
+// let colors = ['red', 'green', 'blue'];
+// let firstColor = "black";
+// let secondColor = "yellow";
+// [ firstColor, secondColor ] = colors;
+// console.log(firstColor);
+// console.log(secondColor);
+
+
+// let a = 1;
+// let b = 5;
+// [ a, b ] = [ b, a ];
+// console.log(a);
+// console.log(b);
+
+
+// let colors = ['red'];
+// let [ firstColor, secondColor = "green" ] = colors;
+// console.log(firstColor);
+// console.log(secondColor);
+
+
+// let colors = ['red', [ 'green', 'lightgreen' ], 'blue'];
+// let [ firstColor, secondColor ] = colors;
+// console.log(firstColor);
+// console.log(secondColor);
+
+
+// let colors = ['red', [ 'green', 'lightgreen' ], 'blue'];
+// let [ firstColor, ...restColors ] = colors;
+// console.log(firstColor);
+// console.log(restColors.length);
+// console.log(restColors[0]);
+// console.log(restColors[1]);
+
+// let colors = ['red', 'green', 'blue'];
+// let [ ...clonedColors ] = colors;
+// console.log(clonedColors);
+
+// function myObject() {}
+// Object.defineProperty(myObject, Symbol.hasInstance, {
+//   value: function (v) {
+//     return false;
+//   }
+// });
+// let obj = new myObject();
+// console.log(obj instanceof myObject);
+
+// let collection = {
+//   0: 'hello',
+//   1: 'feng',
+//   length: 2,
+//   [Symbol.isConcatSpreadable]: false
+// }
+// let message = ["Hi"].concat(collection);
+// console.log(message.length);
+// console.log(message);
+
+// function Person(name) {
+//   this.name = name;
+// }
+// Person.prototype[Symbol.toStringTag] = "Person";
+// Person.prototype.toString = function () {
+//   return this.name;
+// }
+// var me = new Person("feng");
+// console.log(me.toString());
+// console.log(Object.prototype.toString.call(me));
+
+// var set = Object.create(null);
+// set.foo = true;
+// if (set.foo) {
+//   console.log('....')
+// }
+
+// let set = new Set();
+// set.add(5);
+// set.add("5");
+// console.log(set.size);
+
+// let set = new Set();
+// set.add(5);
+// set.add("5");
+// set.add(5);
+// console.log(set.size);
+
+
+// let set = new Set([1, 2, 3, 4, 5, 5, 5]);
+// console.log(set.size);
+
+
+// let set = new Set();
+// set.add(5);
+// set.add("5");
+// console.log(set.has(5));
+// set.delete(5);
+// console.log(set.has(5));
+// console.log(set.size);
+// set.clear();
+// console.log(set.size);
+
+// let set = new Set([1, 2]);
+// set.forEach(function (value, key, ownerSet) {
+//   console.log(key + "  " + value);
+//   console.log(ownerSet === set);
+// })
+
+// let set = new Set([1, 2]);
+// let processor = {
+//   output(value) {
+//     console.log(value);
+//   },
+//   process(dataSet) {
+//     dataSet.forEach(function(value) {
+//       this.output(value)
+//     }, this);
+//   }
+// };
+// processor.process(set);
+
+// let set = new Set([1, 2, 3, 4, 5, 4, 5, 5]);
+// let array = [...set];
+// console.log(array);
+
+
+// function eliminateDuplicates(items) {
+//   return [...new Set(items)];
+// }
+// let numbers = [1, 2, 3, 3, 3, 4, 4, 5, 5, 5];
+// let noDuplicates = eliminateDuplicates(numbers);
+// console.log(noDuplicates);
+
+// let set = new WeakSet();
+// let key = {};
+// set.add(key);
+// console.log(set.has(key));
+// set.delete(key);
+// console.log(set.has(key));
+
+// let map = new Map();
+// map.set("title", "fengzhizi");
+// map.set("year", 2018);
+// console.log(map.get("title"));
+// console.log(map.get("year"));
+
+
+// let map = new Map(),
+//     key1 = {},
+//     key2 = {};
+// map.set(key1, 5);
+// map.set(key2, 66);
+// console.log(map.get(key1));
+// console.log(map.get(key2));
+
+
+let map = new Map([["name", "fengzhizi"], ["year", 2018]]);
+map.forEach(function (value, key, ownerMap) {
+  console.log(key + "  " + value);
+  console.log(ownerMap === map);
+})
