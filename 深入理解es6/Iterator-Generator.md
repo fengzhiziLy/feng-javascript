@@ -167,5 +167,202 @@ for (let x of collection) {
 ```
 
 
-#### 内建迭代器
+#### 内建迭代器---集合对象迭代器
 
+集合对象：数组、Map集合与Set集合
+
+这三种对象都内建了三种迭代器：
+
+1. `entries()`返回一个迭代器，其值为多个键值对
+2. `values()`返回一个迭代器，其值为集合的值
+3. `keys()`返回一个迭代器，其值为集合的所有键名
+
+> `entries()`迭代器,返回的是一个数组,特别的是Set集合，数组中的第一个元素和第二个元素都是值(Set集合中的值被同时作为键和值使用)
+
+```js
+let colors = [ 'red', 'green', 'blue' ];
+let tracking = new Set([1234, 5678, 9012]);
+let data = new Map();
+data.set('title', 'feng');
+data.set('format', 'ebook');
+for (let entry of colors.entries()) {
+  console.log(entry);
+}
+for (let entry of tracking.entries()) {
+  console.log(entry);
+}
+for (let entry of data.entries()) {
+  console.log(entry);
+}
+// [ 0, 'red' ]
+// [ 1, 'green' ]
+// [ 2, 'blue' ]
+// [ 1234, 1234 ]
+// [ 5678, 5678 ]
+// [ 9012, 9012 ]
+// [ 'title', 'feng' ]
+// [ 'format', 'ebook' ]
+```
+
+> `values()`
+
+```js
+let colors = [ 'red', 'green', 'blue' ];
+let tracking = new Set([1234, 5678, 9012]);
+let data = new Map();
+data.set('title', 'feng');
+data.set('format', 'ebook');
+for (let value of colors.values()) {
+  console.log(value);
+}
+for (let value of tracking.values()) {
+  console.log(value);
+}
+for (let value of data.values()) {
+  console.log(value);
+}
+```
+
+> `keys()`
+
+```js
+let colors = [ "red", "green", "blue" ];
+let tracking = new Set([1234, 5678, 9012]);
+let data = new Map();
+data.set("title", "Understanding ECMAScript 6");
+data.set("format", "ebook");
+for (let key of colors.keys()) {
+    console.log(key);
+}
+for (let key of tracking.keys()) {
+    console.log(key);
+}
+for (let key of data.keys()) {
+    console.log(key);
+}
+// 0
+// 1
+// 2
+// 1234
+// 5678
+// 9012
+// title
+// format
+```
+
+> 不同集合类型的默认迭代器：每个集合类型都有一个默认的迭代器，在`for..of`循环中，如果没有显示指定则使用默认的迭代器。数组和Set集合的默认迭代器是`values()`方法，Map集合的默认迭代器是`entries()`方法。
+
+```js
+let colors = [ "red", "green", "blue" ];
+let tracking = new Set([1234, 5678, 9012]);
+let data = new Map();
+data.set("title", "Understanding ECMAScript 6");
+data.set("format", "ebook");
+for (let value of colors) {
+  console.log(value);
+}
+for (let num of tracking) {
+  console.log(num);
+}
+for (let entry of data) {
+  console.log(entry);
+}
+// red
+// green
+// blue
+// 1234
+// 5678
+// 9012
+// [ 'title', 'Understanding ECMAScript 6' ]
+// [ 'format', 'ebook' ]
+```
+
+#### 内建迭代器---字符串迭代器
+
+ES5中字符串可以通过方括号访问字符串中的字符，`test[0]`，但是由于方括号操作的是编码单元而非字符，因此无法正确访问双字节字符。
+
+```js
+var message = "A 𠮷 B";
+for (let i = 0; i < message.length; i++) {
+  console.log(message[i])
+}
+// A
+// (空)
+// (空)
+// (空)
+// (空)
+// B
+```
+
+> ES6
+
+```js
+var message = "A 𠮷 B";
+for (let c of message) {
+  console.log(c);
+}
+// A
+// (空)
+// 𠮷
+// (空)
+// B
+```
+
+
+#### 给迭代器传递参数
+
+如果给迭代器的`next()`传递参数，则这个参数的值就会代替生成器内部上一条`yield`语句的返回值。
+
+```js
+function *createIterator () {
+  let first = yield 1;
+  let second = yield first + 2;
+  yield second + 3;
+}
+let iterator = createIterator();
+console.log(iterator.next());   // { value: 1, done: false }
+console.log(iterator.next(4));  // { value: 6, done: false }
+console.log(iterator.next(5));  // { value: 8, done: false }
+console.log(iterator.next());   // { value: undefined, done: true }
+```
+
+#### 在迭代器抛出错误
+
+```js
+function *createIterator () {
+  let first = yield 1;
+  let second;
+  try {
+    second = yield first + 2;
+  } catch (ex) {
+    second = 6;
+  }
+  yield second + 3;
+}
+let iterator = createIterator();
+console.log(iterator.next());
+console.log(iterator.next(4));
+console.log(iterator.throw(new Error("Boom")));
+console.log(iterator.next());
+```
+
+```js
+function run (taskDef) {
+  let task = taskDef();
+  let result = task.next();
+  function step() {
+    if (!result.done) {
+      result = task.next();
+      step();
+    }
+  }
+  step();
+}
+run(function *() {
+  console.log(1);
+  yield;
+  console.log(2);
+  yield;
+  console.log(3);
+})
+```
