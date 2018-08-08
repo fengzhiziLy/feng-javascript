@@ -189,21 +189,168 @@
 // console.log(iterator.next());
 
 
-function run (taskDef) {
-  let task = taskDef();
-  let result = task.next();
-  function step() {
-    if (!result.done) {
-      result = task.next();
-      step();
-    }
+// function run (taskDef) {
+//   let task = taskDef();
+//   let result = task.next();
+//   function step() {
+//     if (!result.done) {
+//       result = task.next();
+//       step();
+//     }
+//   }
+//   step();
+// }
+// run(function *() {
+//   console.log(1);
+//   yield;
+//   console.log(2);
+//   yield;
+//   console.log(3);
+// })
+
+
+// class PersonClass {
+//   //
+//   constructor(name) {
+//     this.name = name;
+//   }
+//   //
+//   sayName() {
+//     console.log(this.name);   
+//   }
+// }
+// let PersonType = (function () {
+//   "use strict";
+//   const PersonType = function (name) {
+//     if (typeof new.target === 'undefined') {
+//       throw new Error('必须通过关键字new调用构造函数')
+//     }
+//     this.name = name;
+//   }
+//   Object.defineProperty(PersonType.prototype, "sayName", {
+//     value: function () {
+//       if (typeof new.target !== 'undefined') {
+//         throw new Error('不可以使用new关键字调用该方法')
+//       }
+//       console.log(this.name)
+//     },
+//     enumerable: false,
+//     writable: true,
+//     configurable: true
+//   });
+//   return PersonType;
+// }())
+// let person = new PersonType("feng");
+// person.sayName();
+// console.log(person instanceof PersonType);
+// console.log(person instanceof Object);
+// console.log(typeof PersonClass);
+// console.log(typeof PersonClass.prototype.sayName);
+
+
+
+// function Rectangle(length, width) {
+//   this.length = length;
+//   this.width = width;
+// }
+
+// Rectangle.prototype.getArea = function() {
+//   return this.length * this.width;
+// };
+// function Square(length) {
+//   Rectangle.call(this, length, length);
+// }
+// Square.prototype = Object.create(Rectangle.prototype, {
+//   constructor: {
+//       value:Square,
+//       enumerable: true,
+//       writable: true,
+//       configurable: true
+//   }
+// });
+// var square = new Square(3);
+// console.log(square.getArea());              // 9
+// console.log(square instanceof Square);      // true
+// console.log(square instanceof Rectangle);
+
+
+// class Rectangle {
+//   constructor(length, width) {
+//       this.length = length;
+//       this.width = width;
+//   }
+
+//   getArea() {
+//       return this.length * this.width;
+//   }
+
+//   static create(length, width) {
+//       return new Rectangle(length, width);
+//   }
+// }
+
+// class Square extends Rectangle {
+//   constructor(length) {
+//       // same as Rectangle.call(this, length, length)
+//       super(length, length);
+//   }
+// }
+
+// var rect = Square.create(3, 4);
+
+// console.log(rect instanceof Rectangle);     // true
+// console.log(rect.getArea());                // 12
+// console.log(rect instanceof Square);
+
+
+// class MyArray extends Array {
+//   // empty
+// }
+// let items = new MyArray(1, 2, 3, 4),
+//   subitems = items.slice(1, 3);
+// console.log(items instanceof MyArray);      // true
+// console.log(subitems); 
+
+// class MyClass {
+//   static get [Symbol.species]() {
+//       return this;
+//   }
+//   constructor(value) {
+//       this.value = value;
+//   }
+//   clone() {
+//       return new this.constructor[Symbol.species](this.value);
+//   }
+// }
+// class MyDerivedClass1 extends MyClass {
+//   // empty
+// }
+// class MyDerivedClass2 extends MyClass {
+//   static get [Symbol.species]() {
+//       return MyClass;
+//   }
+// }
+// let instance1 = new MyDerivedClass1("foo"),
+//   clone1 = instance1.clone(),
+//   instance2 = new MyDerivedClass2("bar"),
+//   clone2 = instance2.clone();
+// console.log(clone1);
+// console.log(clone2);
+// console.log(clone1 instanceof MyClass);             // true
+// console.log(clone1 instanceof MyDerivedClass1);     // true
+// console.log(clone2 instanceof MyClass);             // true
+// console.log(clone2 instanceof MyDerivedClass2); 
+
+
+
+class MyArray extends Array {
+  static get [Symbol.species]() {
+      return Array;
   }
-  step();
 }
-run(function *() {
-  console.log(1);
-  yield;
-  console.log(2);
-  yield;
-  console.log(3);
-})
+let items = new MyArray(1, 2, 3, 4),
+  subitems = items.slice(1, 3);
+console.log(subitems);
+console.log(items instanceof MyArray);      // true
+console.log(subitems instanceof Array);     // true
+console.log(subitems instanceof MyArray); 
