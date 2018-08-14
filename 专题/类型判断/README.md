@@ -255,7 +255,7 @@ console.log(arrLike.length);  // 3
 
 ```js
 var arr = [1,,];
-console.log(arr.length);
+console.log(arr.length);    // 2
 var arrLike = {
   0: 1,
   length: 1
