@@ -48,8 +48,43 @@ console.log(result);    // 23
 
 ```js
 var arr = [6, 4, 1, 8, 2, 11, 23];
-function max(prev, next) {
+function max(prev, next, index) {
+  console.log("执行了第", index, "次,next的值是", next, ",prev的值是", prev);
   return Math.max(prev, next);
 }
 console.log(arr.reduce(max));
+// 执行了第 1 次,next的值是 4 ,prev的值是 6
+// 执行了第 2 次,next的值是 1 ,prev的值是 6
+// 执行了第 3 次,next的值是 8 ,prev的值是 6
+// 执行了第 4 次,next的值是 2 ,prev的值是 8
+// 执行了第 5 次,next的值是 11 ,prev的值是 8
+// 执行了第 6 次,next的值是 23 ,prev的值是 11
+```
+
+#### 排序
+
+> 如果对数组先进行一次排序，那么最大值就是最后一个值
+
+```js
+var arr = [6, 4, 1, 8, 2, 11, 23];
+arr.sort(function (a, b) {
+  return a - b;
+});
+console.log(arr[arr.length - 1]);
+```
+
+#### apply
+
+> Math.max 支持传多个参数来进行比较
+
+```js
+var arr = [6, 4, 1, 8, 2, 11, 23];
+console.log(Math.max.apply(null, arr));
+```
+
+#### ES6
+
+```js
+var arr = [6, 4, 1, 8, 2, 11, 23];
+console.log(Math.max(...arr));
 ```
