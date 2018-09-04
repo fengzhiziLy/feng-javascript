@@ -27,13 +27,13 @@
 
 #### 响应式
 
-![响应式](https://user-gold-cdn.xitu.io/2017/12/19/1606edad5ca9e23d?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![响应式](./img/2.png)
 
 这里的`getter`与`setter`是在`init`的时候通过`Object.defineProperty`进行了绑定，使得当被设置的对象被读取的时候会执行`getter`函数，而在当被赋值的时候会执行`setter`函数
 
 当`render function`被渲染的时候，因为会读取所需对象的值，所以会触发`getter`函数进行[依赖收集],[依赖收集]的目的是**将观察者Watcher对象存放到当前闭包中的订阅者Dep的subs中**。形成如下的关系：
 
-![目的](https://user-gold-cdn.xitu.io/2017/12/21/160770b2a77e084e?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![目的](./img/3.png)
 
 在修改对象的值的时候，会触发对应的`setter`，`setter`通知之前的[依赖收集]得到的Dep中的每一个Watcher，告诉他们自己的值改变了，需要重新渲染视图。这时候这些Watcher就会调用`update`来更新视图。当然这中间还有一个`patch`的过程以及使用队列异步更新的策略
 
